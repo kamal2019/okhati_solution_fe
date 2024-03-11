@@ -1,7 +1,6 @@
 export const ContainerWrapper = ({ children }: { children: React.ReactElement }) => {
     return (
-        <div>
-            kamal aryal
+        <div className="container-wrapper">
             {children}
         </div>
     )

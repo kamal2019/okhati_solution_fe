@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/Login';
 import { ContainerWrapper } from './container';
 import Home from './pages/Home';
+import RegisterPage from './pages/Register';
 
 function App() {
   return (
@@ -12,8 +13,9 @@ function App() {
       <ContainerWrapper>
         <BrowserRouter>
           <Routes>
-            <Route path='/' element={<LoginPage />} />
-            <Route path="/home" element={<Home />} />
+            <Route path='/' element={<Home />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
           </Routes>
         </BrowserRouter>
       </ContainerWrapper>

@@ -2,7 +2,7 @@ import { Button, TextField } from "@mui/material";
 import { useState } from "react";
 import { LoginRegister } from "../../components/LoginRegisterForm";
 
-const LoginPage = () => {
+const RegisterPage = () => {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
 
@@ -11,16 +11,16 @@ const LoginPage = () => {
     }
     return (
         <div className="login-page">
-            <h2 className="login-page-header">Login</h2>
+            <h2 className="login-page-header">Register</h2>
             <LoginRegister
                 email={email}
                 setEmail={setEmail}
                 password={password}
                 setPassword={setPassword}
                 handleSubmit={handleSubmit}
-                type='login'
+                type='register'
             />
         </div>
     )
 }
-export default LoginPage;
+export default RegisterPage;

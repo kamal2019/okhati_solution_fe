@@ -8,27 +8,54 @@ const Home = () => {
     const navigate = useNavigate();
 
     const [openCompanyForm, setOpenCompanyform] = useState<boolean>(false);
-    const [openingTime, setOpeningTime] = useState<{ day: string, time?: string | any }[]>([])
-    const [closingTime, setClosingTime] = useState<{ day: string, time: string | any }[]>([])
+    const [dateTimeDetails, setDateTimeDetails] = useState<{ day: string, date?: Date, openingTime?: string, closingTime?: string }[]>([{ day: "allDay" }])
+    const [companyName, setCompanyName] = useState<string>("");
+
     const handleLogin = () => {
         navigate("/login")
     }
     const handleAddCompany = () => {
         setOpenCompanyform(true)
     }
-    const handleChangeTime = (day: string, value: string | any, type: string) => {
-        const setValue = type === 'openingTime' ? setOpeningTime : setClosingTime;
-        
-        setValue((previousValue: string | any) => [
-            ...previousValue,
-            { day: "default", time: new Date(value) },
-        ])
-    }
-    const handleDefaultTime = () => {
+    const handleChangeTime = (day: string, value: string | any, type: string, date?: Date) => {
+        setDateTimeDetails((previousValue: string | any) => {
+            const defaultIndex = previousValue?.findIndex((item: any) => item.day === day);
+            if (defaultIndex !== -1) {
+                const updatedValue = [...previousValue];
+                updatedValue[defaultIndex] = {
+                    ...updatedValue[defaultIndex],
+                    ...(type === 'openingTime' && { openingTime: new Date(value) }),
+                    ...(type === 'closingTime' && { closingTime: new Date(value) }),
+                    ...(type === 'date' && { date: date })
+                };
+                return updatedValue;
+            } else {
+                return [...previousValue, {
+                    day: day,
+                    ...(type === 'openingTime' && { openingTime: new Date(value) }),
+                    ...(type === 'closingTime' && { closingTime: new Date(value) }),
+                    ...(type === 'date' && { date: date })
+                }]
+            }
+        })
 
     }
-    console.log(openingTime, 'kamal')
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+    const handleDefaultTime = () => {
+        const dateTimeDetailsDefault = dateTimeDetails?.filter((time) => time.day === 'allDay');
+        days?.map((item) => {
+            handleChangeTime(item, dateTimeDetailsDefault?.[0]?.openingTime, 'openingTime');
+            handleChangeTime(item, dateTimeDetailsDefault?.[0]?.closingTime, 'closingTime');
+            console.log('running', item)
+        })
+    }
+
+    const handleSubmitCompanyDetails = () => {
+        // const openingHours = 
+        // const body = {name:companyName }
+    };
+    console.log(dateTimeDetails, 'kamal')
     return (
         <div className="home-page">
             {/* <h2>Welcome</h2>
@@ -38,18 +65,19 @@ const Home = () => {
             <Button onClick={() => handleAddCompany()}>Add</Button>
             {openCompanyForm &&
                 <div className="display-flex">
-                    <TextField placeholder="Enter Company Name" />
+                    <TextField placeholder="Enter Company Name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
                     <div style={{ margin: "10px 0px" }}>Set To All</div>
                     <div style={{ margin: "20px 0px", display: "flex", flexDirection: "row", alignItems: "center", gap: "10px" }}>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimePicker
-                                label="Time picker"
-                                value={openingTime[0]?.time}
+                                label="Opening Time"
+                                value={dateTimeDetails[0]?.openingTime}
                                 onChange={(newValue) => handleChangeTime('allDay', newValue, 'openingTime')}
                             />
-                            <TimePicker label="Time picker" value={closingTime[0]?.time}
-                                onChange={(newValue) => handleChangeTime('allDay', newValue, 'closingTime')
-                                }
+                            <TimePicker
+                                label="Closing Time"
+                                value={dateTimeDetails[0]?.closingTime}
+                                onChange={(newValue) => handleChangeTime('allDay', newValue, 'closingTime')}
                             />
                         </LocalizationProvider>
                         <Button variant="outlined" onClick={() => handleDefaultTime()}>Set Default</Button>
@@ -57,16 +85,32 @@ const Home = () => {
                     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                         {
                             days?.map((day, key) => (
-                                <div key={day} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px" }}>
-                                    <span>{day}</span>
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <DatePicker />
-                                        <TimePicker label="Time picker" value={openingTime[key + 2]?.time} />
-                                        <TimePicker label="Time picker" value={closingTime[key + 2]?.time} />
-                                    </LocalizationProvider>
+                                <div key={day} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                                    <span style={{ fontWeight: "700" }}>{day} :</span>
+                                    <div style={{ display: "flex", gap: "10px" }}>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                            <DatePicker
+                                                value={dateTimeDetails[key + 1]?.date}
+                                                onChange={(newValue) => handleChangeTime(day, "", "date", new Date(newValue!))}
+                                            />
+                                            <TimePicker
+                                                label="Opening Time"
+                                                value={dateTimeDetails[key + 1]?.openingTime}
+                                                onChange={(newValue) => handleChangeTime(day, newValue, 'openingTime')}
+                                            />
+                                            <TimePicker
+                                                label="Closing Time"
+                                                value={dateTimeDetails[key + 1]?.closingTime}
+                                                onChange={(newValue) => handleChangeTime(day, newValue, 'closingTime')}
+                                            />
+                                        </LocalizationProvider>
+                                    </div>
                                 </div>
                             ))
                         }
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "end", marginTop: "10px" }}>
+                        <Button variant="outlined" onClick={() => handleSubmitCompanyDetails()}>Submit</Button>
                     </div>
 
                 </div>}

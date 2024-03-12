@@ -30,6 +30,10 @@ input {
   height: 15px !important
 }
 
+.home-page {
+  padding: 5%
+}
+
 /* frequently used css here  */
 .display-flex-jc-center {
   display: flex;

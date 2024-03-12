@@ -1,13 +1,16 @@
 import { Button, TextField } from "@mui/material";
 import { useState } from "react";
 import { LoginRegister } from "../../components/LoginRegisterForm";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
+    const navigate = useNavigate()
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
 
     const handleSubmit = () => {
         console.log(email, password)
+        navigate("/home")
     }
     return (
         <div className="login-page">

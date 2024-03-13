@@ -1,6 +1,7 @@
 .container-wrapper {
   height: 100%;
   background-color: aliceblue;
+  min-height: 100vh;
 }
 
 .login-page {
@@ -31,7 +32,10 @@ input {
 }
 
 .home-page {
-  padding: 5%
+  padding: 5%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* frequently used css here  */

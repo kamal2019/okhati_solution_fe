@@ -1,8 +1,11 @@
-import { Button, TextField } from "@mui/material"
+import { Button, Collapse, TextField } from "@mui/material"
 import { DatePicker, LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom"
+import { getCompanyList } from "../../api/user";
+import { ICompanyDetail } from "../../types";
+import { CompanyList } from "./components/CompanyList";
 
 const Home = () => {
     const navigate = useNavigate();
@@ -11,6 +14,8 @@ const Home = () => {
     const [openCompanyForm, setOpenCompanyform] = useState<boolean>(false);
     const [dateTimeDetails, setDateTimeDetails] = useState<{ day: string, date?: Date, openingTime?: string, closingTime?: string }[]>([{ day: "allDay" }])
     const [companyName, setCompanyName] = useState<string>("");
+    const [companyList, setCompanyList] = useState<ICompanyDetail[]>([]);
+    const [toBeOpenedList, setToBeOpenedList] = useState<number[]>([])
 
     const handleLogin = () => {
         navigate("/login")
@@ -54,18 +59,37 @@ const Home = () => {
 
     const handleSubmitCompanyDetails = () => {
         // const openingHours = 
-        // const body = {name:companyName }
+        const body = { name: companyName, openingHours: dateTimeDetails };
+
     };
+    const handleOpenDetails = (index: number) => {
+        const selectedIndex = toBeOpenedList?.indexOf(index);
+        if (selectedIndex === -1) {
+            setToBeOpenedList((previousValues) => [...previousValues, index])
+        }
+        else {
+            const newNumbers = [...toBeOpenedList];
+            newNumbers.splice(index, 1);
+            setToBeOpenedList(newNumbers)
+        }
+    }
 
     useEffect(() => {
+        async function getCompanyListing() {
+            await getCompanyList()
+                .then((response: any) => {
+                    setCompanyList(response?.data)
+                })
+        }
         const token = localStorage.getItem('token');
         if (!token) {
-            setOpenLogin(true)
+            setOpenLogin(true);
         } else {
             setOpenLogin(false)
+            getCompanyListing()
         }
-    })
-    console.log(dateTimeDetails, 'kamal')
+    }, [])
+    console.log(companyList, 'kamal')
     return (
         <div className="home-page">
             {openLogin ?
@@ -77,11 +101,21 @@ const Home = () => {
                 :
                 <>
                     <h2>Company</h2>
-                    <Button onClick={() => handleAddCompany()}>Add</Button>
+                    Company List :
+                    <div style={{ display: 'flex', flexDirection: "column", gap: "20px", marginBottom: "20px" }}>
+                        {companyList?.length > 0 ?
+                            companyList?.map((item, index: number) => (
+                                <CompanyList item={item} toBeOpenedList={toBeOpenedList} handleOpenDetails={handleOpenDetails} index={index} />
+                            ))
+                            :
+                            <div>No companies registered yet</div>
+                        }
+                    </div>
+                    <div style={{ textDecoration: "underline", cursor: "pointer" }} onClick={() => handleAddCompany()}>Register your company ?</div>
                     {openCompanyForm &&
                         <div className="display-flex">
                             <TextField placeholder="Enter Company Name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
-                            <div style={{ margin: "10px 0px" }}>Set To All</div>
+                            {/* <div style={{ margin: "10px 0px" }}>Set To All</div> */}
                             <div style={{ margin: "20px 0px", display: "flex", flexDirection: "row", alignItems: "center", gap: "10px" }}>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <TimePicker

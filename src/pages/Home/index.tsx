@@ -1,9 +1,11 @@
-import { Button, Collapse, TextField } from "@mui/material"
+import { Button, TextField } from "@mui/material"
 import { DatePicker, LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"
-import { getCompanyList } from "../../api/user";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
+import { createCompany, getCompanyList } from "../../api/user";
 import { ICompanyDetail } from "../../types";
 import { CompanyList } from "./components/CompanyList";
 
@@ -21,7 +23,7 @@ const Home = () => {
         navigate("/login")
     }
     const handleAddCompany = () => {
-        setOpenCompanyform(true)
+        setOpenCompanyform(!openCompanyForm)
     }
     const handleChangeTime = (day: string, value: string | any, type: string, date?: Date) => {
         setDateTimeDetails((previousValue: string | any) => {
@@ -53,14 +55,28 @@ const Home = () => {
         days?.map((item) => {
             handleChangeTime(item, dateTimeDetailsDefault?.[0]?.openingTime, 'openingTime');
             handleChangeTime(item, dateTimeDetailsDefault?.[0]?.closingTime, 'closingTime');
-            console.log('running', item)
         })
+    }
+    async function getCompanyListing() {
+        await getCompanyList()
+            .then((response: any) => {
+                setCompanyList(response?.data)
+            })
     }
 
     const handleSubmitCompanyDetails = () => {
-        // const openingHours = 
-        const body = { name: companyName, openingHours: dateTimeDetails };
-
+        const token = localStorage.getItem("token");
+        const body = { name: companyName, openingHours: dateTimeDetails?.slice(1) };
+        createCompany(body, token!)
+            .then((response) => {
+                if (response?.success) {
+                    toast.success("Successfully registered company");
+                    getCompanyListing();
+                    setOpenCompanyform(false)
+                } else {
+                    toast.error(response?.message)
+                }
+            })
     };
     const handleOpenDetails = (index: number) => {
         const selectedIndex = toBeOpenedList?.indexOf(index);
@@ -68,19 +84,16 @@ const Home = () => {
             setToBeOpenedList((previousValues) => [...previousValues, index])
         }
         else {
-            const newNumbers = [...toBeOpenedList];
-            newNumbers.splice(index, 1);
+            const newNumbers = toBeOpenedList?.filter((item) => item !== index);
             setToBeOpenedList(newNumbers)
         }
     }
+    const handleLogout = () => {
+        localStorage.clear();
+        setOpenLogin(true)
+    }
 
     useEffect(() => {
-        async function getCompanyListing() {
-            await getCompanyList()
-                .then((response: any) => {
-                    setCompanyList(response?.data)
-                })
-        }
         const token = localStorage.getItem('token');
         if (!token) {
             setOpenLogin(true);
@@ -89,7 +102,6 @@ const Home = () => {
             getCompanyListing()
         }
     }, [])
-    console.log(companyList, 'kamal')
     return (
         <div className="home-page">
             {openLogin ?
@@ -112,10 +124,10 @@ const Home = () => {
                         }
                     </div>
                     <div style={{ textDecoration: "underline", cursor: "pointer" }} onClick={() => handleAddCompany()}>Register your company ?</div>
+                    {!openLogin && <Button variant="outlined" onClick={handleLogout}>Logout</Button>}
                     {openCompanyForm &&
                         <div className="display-flex">
                             <TextField placeholder="Enter Company Name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
-                            {/* <div style={{ margin: "10px 0px" }}>Set To All</div> */}
                             <div style={{ margin: "20px 0px", display: "flex", flexDirection: "row", alignItems: "center", gap: "10px" }}>
                                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                                     <TimePicker
@@ -161,7 +173,6 @@ const Home = () => {
                             <div style={{ display: "flex", justifyContent: "end", marginTop: "10px" }}>
                                 <Button variant="outlined" onClick={() => handleSubmitCompanyDetails()}>Submit</Button>
                             </div>
-
                         </div>}
                 </>
             }

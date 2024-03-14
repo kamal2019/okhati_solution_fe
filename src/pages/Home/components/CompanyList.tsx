@@ -1,7 +1,7 @@
 import { Button, Collapse } from "@mui/material";
 
 import { ICompanyDetail } from "../../../types"
-import { getDate } from "../../../utils/functions"
+import { getDate, getTimeFormat } from "../../../utils/functions"
 
 interface ICompanyDetailProps {
     item: ICompanyDetail,
@@ -21,8 +21,8 @@ export const CompanyList = ({ item, toBeOpenedList, handleOpenDetails, index }: 
                     <>
                         <div>{time.day} ({getDate(time.date)}) : </div>
                         <div style={{ marginLeft: "20px" }}>
-                            <div>Opening Time : {time.openingTime}</div>
-                            <div>Closing Time : {time.closingTime}</div>
+                            <div>Opening Time : {getTimeFormat(time.openingTime)}</div>
+                            <div>Closing Time : {getTimeFormat(time.closingTime)}</div>
                         </div>
                     </>
                 ))}

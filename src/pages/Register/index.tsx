@@ -20,9 +20,7 @@ const RegisterPage = () => {
                 } else {
                     toast.error(response?.message)
                 }
-                console.log(response, 'response')
             })
-        console.log(email, password)
     }
     return (
         <div className="login-page">

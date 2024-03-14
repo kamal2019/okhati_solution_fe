@@ -11,7 +11,7 @@ interface ILoginRegisterProps {
 }
 export const LoginRegister = ({ email, setEmail, handleSubmit, setPassword, password, type }: ILoginRegisterProps) => {
     return (
-        <div style={{ background: "#ffffff", borderRadius: "20px" }}>
+        <div style={{ background: "#ffffff", borderRadius: "20px" }} className="login-register-box">
             <div className="login-page-box">
                 <TextField placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
                 <TextField placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
